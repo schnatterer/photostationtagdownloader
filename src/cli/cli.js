@@ -3,6 +3,7 @@ const startDate = new Date();
 
 const AudioDownloader = require('../audioDownloader.js');
 const PhotoDownloader = require('../photoDownloader.js');
+const FotoDownloader = require('../fotoDownloader.js');
 
 function cli(program) {
 
@@ -22,6 +23,15 @@ function cli(program) {
         .action(function (env, options) {
             validateRequiredParams(options);
             downloader = new PhotoDownloader(options);
+        });
+
+    setCommonParams(program
+        .command('foto')
+        .description('Download from Synology Photos (DSM7)'))
+        .option('-t, --tags [value]', 'Comma separated list of specific tags to download. If not set, instead loads all tags', commaSeparatedMultiple, [])
+        .action(function (env, options) {
+            validateRequiredParams(options);
+            downloader = new FotoDownloader(options);
         });
 
     setCommonParams(program

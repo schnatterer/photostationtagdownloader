@@ -38,14 +38,18 @@ chmod +x dsdl
 
 Use it like so:
 
-* photos
-    ```bash
-    ./dsdl photo --user your-diskstsation-user --output photos/ http://diskstation/photo
-    ```
-* audio
-    ```bash
-    ./dsdl audio --user your-user --output music/ http://diskstation:5000/
-    ```
+* DS Photo (DSM < 7)
+```shell
+./dsdl photo --user your-diskstsation-user --output photos/ http://diskstation/photo
+```
+* DS Audio
+```shell
+./dsdl audio --user your-user --output music/ http://diskstation:5000/
+```
+* Synology Photos (DSM 7+) - 
+```shell
+./dsdl foto --user your-user --output music/ http://diskstation:5000/
+```
 
 You will be prompted for the password.
 
@@ -84,17 +88,25 @@ echo "PW" | ./dsdl photo -u ...
   * Default: `list` - creates subdirs for each list.
   * `flat` - writes all photos to a single folders.
   * `server` - creates same folder structure as on server (Works only for audio).  
-     Or is there a way to get the album for a photo via the Synology Photo Station API? 
+     Or is there a way to get the album for a photo via the Synology Photo Station / Foto API? 
 
-### Photo
+### DS Photo
 
 * `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified  
   * comma separated (e.g. `--tags "tag one",numberTwo`) or
   * by using multiple parameters (e.g `--tags "tag one" --tags numberTwo`) 
   
-### Audio
+### DS Audio
 
 * `--playlists` - downloads specific playlists. Note that playlists containing spaces must be quoted. Multiple playlists can either be specified  
   * comma separated (e.g. `--playlists "tag one",numberTwo`) or
   * by using multiple parameters (e.g `--playlists "tag one" --playlists numberTwo`) 
 * `--m3u` - Create m3u playlist files for each downloaded playlist
+
+### Synology Photos
+
+Note that for synology photos right now a maximum of 5000 photos can be downloaded for a single tag
+
+* `--tags` - downloads specific tags. Note that tags containing spaces must be quoted. Multiple tags can either be specified
+  * comma separated (e.g. `--tags "tag one",numberTwo`) or
+  * by using multiple parameters (e.g `--tags "tag one" --tags numberTwo`) 
