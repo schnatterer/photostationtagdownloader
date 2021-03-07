@@ -6,6 +6,8 @@ const path = require('path');
 
 const baseUrl = 'http://diskstation';
 const expectedCookie = 'myCookie';
+const expectedSynoToken = 'mySyno';
+const expectedSid = 'mySID'
 const expectedErrorCode = 42
 
 let downloader;
@@ -385,6 +387,9 @@ function playlist(id, name, songs) {
 }
 
 function mockAuthResponse(returnCode, response) {
+    response.data = response.data || {};
+    response.data.synotoken = expectedSynoToken
+    response.data.sid = expectedSid
     nock(baseUrl)
         .post('/webapi/auth.cgi')
         .reply(returnCode, response, {
@@ -395,7 +400,17 @@ function mockAuthResponse(returnCode, response) {
 function mockSongDownload(songId, returnCode, response) {
     nock(baseUrl)
         .post('/webapi/AudioStation/download.cgi', body => body.songs === songId)
-        .reply(returnCode, response);
+        //.reply(returnCode, response);
+        .reply(function (uri, requestBody) {
+            // use normal function in that case, as arrow functions are using enclosing scope for this binding.
+            expect(requestBody).toContain(`_sid=${expectedSid}`);
+            expect(this.req.headers.cookie).toContain(expectedCookie);
+            expect(this.req.headers['x-syno-token']).toContain(expectedSynoToken);
+            return [
+                returnCode,
+                response
+                ]
+        });
 }
 
 function mockPlaylistResponse(playlist, returnCode, responseSuccessful, errorCode = '') {

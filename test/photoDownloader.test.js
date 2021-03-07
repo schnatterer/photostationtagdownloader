@@ -7,6 +7,7 @@ const path = require('path');
 
 const baseUrl = 'http://diskstation';
 const expectedCookie = 'myCookie';
+const expectedSynoToken = 'mySyno';
 const expectedErrorCode = 42
 
 let downloader;
@@ -55,10 +56,12 @@ describe("Photos & Tags", () => {
 
     beforeEach(() => {
         photos = [
-            photo(1, 'one.jpg', 'fake-binary-data-1'), photo(2, 'two.png', 'fake-binary-data-too')
+            photo(1, 'one.jpg', 'fake-binary-data-1'),
+            photo(2, 'two.png', 'fake-binary-data-too')
         ];
         tags = [
-            tag(1, 'our-tag', [photos[0]]), tag(2, 'the other tag', [photos[1]])
+            tag(1, 'our-tag', [photos[0]]),
+            tag(2, 'the other tag', [photos[1]])
         ];
 
         nock.cleanAll();
@@ -220,6 +223,7 @@ describe("Photos & Tags", () => {
         });
 
         test('unsuccessful tag request', async () => {
+            vol.reset()
             mockFetchedTags(tags, 200, true);
             mockSuccessfulPhotoDownload(photos);
 
@@ -240,6 +244,7 @@ describe("Photos & Tags", () => {
         });
 
         test('returns non-2xx code', async () => {
+            vol.reset()
             mockFetchedTags(tags, 200, true);
             mockSuccessfulPhotoDownload(photos);
 
@@ -272,6 +277,7 @@ describe("Photos & Tags", () => {
 
             expect(stats.listsTotal).toBe(tags.length);
             expect(stats.filesTotal).toBe(2);
+            // TODO why are some files downloaded twice? Only when running all tests :/
             expect(stats.filesSkipped).toBe(0);
             expect(stats.filesDownloaded).toBe(2);
         });
@@ -313,6 +319,8 @@ function tag(id, name, photos) {
 }
 
 function mockAuthResponse(returnCode, response) {
+    response.data = response.data || {};
+    response.data.synotoken = expectedSynoToken
     nock(baseUrl)
         .post('/webapi/auth.php')
         .reply(returnCode, response, {

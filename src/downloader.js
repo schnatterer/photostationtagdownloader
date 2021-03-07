@@ -33,6 +33,8 @@ class Downloader {
         };
 
         this.cookie = undefined;
+        this.synotoken = undefined;
+        this.sid = undefined;
     }
 
     downloadAllFiles(password) {
@@ -54,6 +56,9 @@ class Downloader {
                 if (!responseJson.success) {
                     throw `Authentication failed. Returned success=false. error code ${responseJson.error.code}`
                 }
+                this.synotoken = responseJson.data.synotoken
+                this.sid = responseJson.data.sid
+                //There's also a 'did' field if we should ever need it
             })
     }
 
@@ -104,7 +109,6 @@ class Downloader {
                 promises.push(promise)
             }
         });
-
         return Promise.all(promises).then(() =>
             this.listsToDownload.forEach(list => {
                 if (!this.stats.listsDownloaded.includes(list)) {
@@ -209,6 +213,10 @@ class Downloader {
     }
 
     postToNas(url, form) {
+        // Using cookies with fotos app of DSM7 seems to always result in error code 119, which is not documented :(
+        // Sending both SID and cookie works for both. Good enough for now.
+        form.append('_sid', this.sid)
+
         return fetch(url, {
             method: 'POST',
             body: form,
@@ -218,7 +226,9 @@ class Downloader {
 
     headers() {
         return {
-            Cookie: this.cookie
+            // DS Photo works with cookie only
+            cookie: this.cookie,
+            'x-syno-token' :  this.synotoken
         };
     }
 
@@ -267,11 +277,10 @@ class Downloader {
         form.append('version', '3');
         form.append('account', username);
         form.append('passwd', password);
-
-        //form.append('session', 'AudioStation');
-
-        // We could use a session ID instead of a cookie in future
-        //form.append('format', 'sid');
+        form.append('enable_syno_token', 'yes')
+        // Some docs say we SID must be enabled with format=sid
+        // But the sid seems to be shipped anyways.
+        // Docs also mention a session name "session" but it also works without...
 
         return form;
     }

@@ -21,7 +21,7 @@
     "jest-sonar-reporter": "^2.0.0",
     "nexe": "^4.0.0-beta.18",
     "nock": "^13.0.10",
-    "memfs": "2.9.0",
+    "memfs": "3.2.0",
     "typescript": "^3.3.3333"
   },
   "jest": {
